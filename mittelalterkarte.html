@@ -8,14 +8,16 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <script src="data.js"></script>
+
     <style>
 		html, body {
 			height: 100%;
 			margin: 0;
 		}
 		.leaflet-container {
-			height: 400px;
-			width: 600px;
+			height: 600px;
+			width: 900px;
 			max-width: 100%;
 			max-height: 100%;
 		}
@@ -28,11 +30,11 @@
 
     <script>
 
-        var map = L.map('map').setView([48.20, 11.61], 13);
+        var map = L.map('map').setView([48.20, 11.61], 8);
 
         const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> | &copy; <a href="https://www.geoapify.com">Geoapify</a>'
         }).addTo(map);
 
         function onMapClick(e) {
@@ -43,6 +45,39 @@
         }
 
         map.on('click', onMapClick);
+
+        const locations = new Map();
+
+        const markers = []
+        for (const event of data) {
+            const key = `${event.lat},${event.lon}`;
+
+            if (!locations.has(key)) {
+                locations.set(key, []);
+            }
+
+            locations.get(key).push(event);
+
+        }
+
+        for (const group of locations.values()) {
+            const { lat, lon } = group[0];
+
+            L.marker([lat, lon]).addTo(map).bindPopup(makePopup(group));
+        }
+
+        function makePopup(group) {
+            console.log(group)
+            var content = ""
+            for (const event of group) {
+                if(content != ""){
+                    content = content + "<hr>"
+                }
+                content = content + '<a href="' + event.url + '">' + event.name + '</a>' + "<br>" + event.from + " bis " + event.until + "<br>" + event.plz + " " + event.place
+            }
+            return content
+        }
+
 
     </script>
 
