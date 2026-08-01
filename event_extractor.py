@@ -70,8 +70,10 @@ def extract_data(file_name: str) -> List:
 
 
 def save_data(events_list: List) -> None:
-    with open(FILE_CWD / "data.json", "w", encoding='utf-8') as f:
+    with open(FILE_CWD / "data.js", "w", encoding='utf-8') as f:
+        f.write("const data = ")
         json.dump(events_list, f, indent=2)
+        f.write(";")
 
 
 def main() -> None:

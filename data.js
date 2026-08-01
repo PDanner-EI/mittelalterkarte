@@ -1,4 +1,4 @@
-[
+const data = [
   {
     "from": "02.01.2026",
     "until": "06.01.2026",
@@ -6791,4 +6791,4 @@
     "plz": "18586",
     "place": "Ostseebad G\u00f6hren"
   }
-]
+];
