@@ -2,10 +2,13 @@ import os
 from pathlib import Path
 import json
 from typing import List
+import requests
+import time
 
 FILE_CWD = Path(__file__).resolve().parent
 SOURCE_CWD = FILE_CWD / "source"
 
+API_KEY = os.environ["GEOAPIFY_API_KEY"]
 
 def get_source_file() -> str:
     files = os.listdir(SOURCE_CWD)
@@ -63,9 +66,9 @@ def extract_data(file_name: str) -> List:
         while(file_data.find("isbfilter") >= 0):
             event_result = extract_next_event(file_data)
             events.append(event_result["event"])
-            print(event_result["event"])
+            #print(event_result["event"])
             file_data = event_result["data"]
-    print(f"Entries: {len(events)}")
+    #print(f"Entries: {len(events)}")
     return events
 
 
@@ -76,11 +79,33 @@ def save_data(events_list: List) -> None:
         f.write(";")
 
 
+def add_coordinates(events_list: List) -> List:
+    for event in events_list:
+        r = requests.get(
+            "https://api.geoapify.com/v1/geocode/search",
+            params={
+                "text": f"{event["plz"]} {event["place"]}",
+                "apiKey": API_KEY
+            }
+        )
+        data = r.json()
+
+        if data["features"]:
+            coords = data["features"][0]["geometry"]["coordinates"]
+            event["lon"] = coords[0]
+            event["lat"] = coords[1]
+            print(event)
+        else:
+            print("No result")
+    return events_list
+
+
 def main() -> None:
     file_name = get_source_file()
     if "mittelalterkalender.info" not in file_name:
         raise ValueError("Currently only 'mittelalterkalender.info' is accepted as source")
     events_list = extract_data(file_name)
+    events_list = add_coordinates(events_list)
     save_data(events_list)
 
 
