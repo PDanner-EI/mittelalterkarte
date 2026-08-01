@@ -3,7 +3,7 @@
 <html>
 
 <head>
-    <title>Page Title</title>
+    <title>Mittelalterkarte</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
@@ -11,6 +11,7 @@
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script src="data.js"></script>
+    <link rel="stylesheet" href="styles.css">
 
     <style>
         html,
@@ -20,8 +21,8 @@
         }
 
         .leaflet-container {
-            height: 600px;
-            width: 900px;
+            height: 100%;
+            width: 100%;
             max-width: 100%;
             max-height: 100%;
         }
@@ -109,7 +110,7 @@
                 if (content != "") {
                     content = content + "<hr>"
                 }
-                content = content + '<a href="' + event.url + '">' + event.name + '</a>' + "<br>" + event.from + " bis " + event.until + "<br>" + event.plz + " " + event.place
+                content = content + '<a href="' + event.url + '" target="_blank">' + event.name + '</a>' + "<br>" + event.from + " bis " + event.until + "<br>" + event.plz + " " + event.place
             }
             return content;
         }
@@ -130,11 +131,11 @@
 
         const MonthControl = L.Control.extend({
             options: {
-                position: "topright"
+                position: "bottomleft"
             },
 
             onAdd: function () {
-                const div = L.DomUtil.create("div", "leaflet-bar");
+                const div = L.DomUtil.create("div", "month-control");
 
                 div.innerHTML = `
             <button data-month="1">Jan</button><br>
@@ -156,6 +157,12 @@
 
                 div.querySelectorAll("button").forEach(button => {
                     button.addEventListener("click", () => {
+                        div.querySelectorAll("button").forEach(b =>
+                            b.classList.remove("active")
+                        );
+
+                        button.classList.add("active");
+
                         const month = Number(button.dataset.month);
                         showMonth(month);
                     });
